@@ -1,0 +1,522 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1282</width>
+    <height>789</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Plotter v1.1.0</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <activeon>:/newPrefix/icon.png</activeon>
+   </iconset>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QProgressBar {
+    border: 2px solid #ccc; /* Light gray border to match other elements */
+    border-radius: 5px; /* Rounded corners for smooth look */
+    background: #f3f3f3; /* Light gray background */
+    text-align: center; /* Center the progress text */
+    color: #fff; /* White text color for contrast */
+    font-family: Arial, sans-serif; /* Font style */
+    font-size: 12px; /* Font size */
+}
+
+QProgressBar::chunk {
+    background-color:#e53935; /* Solid red color for the progress */
+    border-radius: 5px; /* Smooth rounded edges for the bar */
+}
+
+
+/* Apply to the entire application */
+QWidget {
+    background-color: #1c1c1c; /* Dark gray background */
+    color: #f0f0f0; /* Light text color */
+
+}
+
+/* Apply to labels */
+QLabel {
+    color: #f44336; /* Bright red text color */
+    font-size: 16px; /* Adjusted font size for labels */
+    padding: 5px; /* Add padding for labels */
+}
+
+/* Apply to buttons */
+QPushButton {
+    background-color: #d32f2f; /* Bright red background */
+    border: none; /* No border */
+    color: #ffffff; /* White text color */
+
+    border-radius: 5px; /* Rounded corners */
+    font-size: 14px; /* Adjust font size */
+    margin: 5px; /* Margin around buttons */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+QPushButton:hover {
+    background-color: #e53935; /* Slightly brighter red on hover */
+}
+
+QPushButton:pressed {
+    background-color: #b71c1c; /* Darker red when pressed */
+}
+
+/* Apply to form frame */
+QFrame#formFrame {
+    background-color: #2e2e2e; /* Slightly lighter gray for formFrame */
+    border: 2px solid #d32f2f; /* Bright red border */
+    border-radius: 10px; /* Rounded corners */
+    padding: 15px; /* Padding inside the frame */
+    margin: 10px; /* Margin around frame */
+}
+
+/* Apply to tab widget */
+QTabWidget::pane {
+    border: 1px solid #d32f2f; /* Bright red border around tab pane */
+    background-color: #1c1c1c; /* Dark background for tab pane */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px; /* Padding inside the tab pane */
+}
+
+
+QTabBar::tab {
+    background: #2e2e2e; /* Dark gray background for tabs */
+    color: #f0f0f0; /* Light text color */
+    border: 1px solid #d32f2f; /* Bright red border */
+    border-bottom-color: #1c1c1c; /* Same as pane background to blend */
+    border-radius: 5px 5px 0 0; /* Rounded top corners */
+    padding: 8px 16px; /* Padding inside tabs */
+    margin: 2px; /* Margin between tabs */
+}
+
+QTabBar::tab:selected {
+    background: #d32f2f; /* Bright red background for selected tab */
+    color: #ffffff; /* White text color for selected tab */
+}
+
+QTabBar::tab:hover {
+    background: #e53935; /* Slightly brighter red on hover */
+}
+
+/* Optional: Style for QLineEdit, QComboBox, etc. */
+QLineEdit, QComboBox {
+    background-color: #3e3e3e; /* Dark gray background */
+    border: 1px solid #d32f2f; /* Bright red border */
+    border-radius: 5px; /* Rounded corners */
+    color: #f0f0f0; /* Light text color */
+    padding: 5px; /* Padding inside the input */
+}
+
+
+</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0" rowspan="4" colspan="3">
+     <widget class="TerminalTextEdit" name="TerminalTextEdit">
+      <property name="minimumSize">
+       <size>
+        <width>400</width>
+        <height>500</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>430</width>
+        <height>16777215</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3" rowspan="6">
+     <widget class="PlotWidget" name="plotWidget" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>450</width>
+        <height>550</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="4" colspan="2">
+     <widget class="QLabel" name="label_4">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>360</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Segoe Print</family>
+        <pointsize>-1</pointsize>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Port 1 Configuration</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="4">
+     <widget class="QLabel" name="label_2">
+      <property name="maximumSize">
+       <size>
+        <width>150</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Segoe Print</family>
+        <pointsize>-1</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>COM port</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="5">
+     <widget class="QComboBox" name="comPortComboBox">
+      <property name="maximumSize">
+       <size>
+        <width>210</width>
+        <height>16777215</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="4">
+     <widget class="QLabel" name="label">
+      <property name="maximumSize">
+       <size>
+        <width>150</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Segoe Print</family>
+        <pointsize>-1</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Baud rate</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="5">
+     <widget class="QComboBox" name="baudRateComboBox">
+      <property name="maximumSize">
+       <size>
+        <width>210</width>
+        <height>16777215</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="4">
+     <widget class="QLabel" name="label_3">
+      <property name="maximumSize">
+       <size>
+        <width>150</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Segoe Print</family>
+        <pointsize>-1</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Display window</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="5">
+     <widget class="QSlider" name="windowSizeSlider">
+      <property name="maximumSize">
+       <size>
+        <width>210</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="sliderPosition">
+       <number>50</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksBothSides</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0" colspan="2">
+     <widget class="QLineEdit" name="CMDtextEdit"/>
+    </item>
+    <item row="4" column="2">
+     <widget class="QPushButton" name="SendButton">
+      <property name="minimumSize">
+       <size>
+        <width>130</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Send</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QPushButton" name="BondlistButton">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Bond List</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="1">
+     <widget class="QPushButton" name="PairButton">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Pair</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="2">
+     <widget class="QPushButton" name="PassiveButton">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Passive entry</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="5" rowspan="2">
+     <widget class="QLabel" name="label_23">
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="logo.qrc">:/newPrefix/logo.png</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QPushButton" name="FactoryResetButton">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Factory reset</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="1">
+     <widget class="QPushButton" name="ResetButton">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Reset</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="2">
+     <widget class="QPushButton" name="HelpButton">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Help</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="3">
+     <layout class="QHBoxLayout" name="horizontalLayout_13">
+      <item>
+       <widget class="QPushButton" name="ClearButton">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Clear</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="SaveButton">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Save</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="StartButton">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Start</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="6" column="4">
+     <widget class="QPushButton" name="LogButton">
+      <property name="minimumSize">
+       <size>
+        <width>130</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>360</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Log</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PlotWidget</class>
+   <extends>QWidget</extends>
+   <header>pyqtgraph</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TerminalTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>plotter</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="logo.qrc"/>
+  <include location="icon.qrc"/>
+ </resources>
+ <connections/>
+</ui>
