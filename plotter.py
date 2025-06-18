@@ -121,6 +121,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.FactoryResetButton: "factoryreset",
             self.ResetButton: "reset",
         }
+
+        # Connect command buttons
         for button, command in self.command_buttons.items():
             button.clicked.connect(lambda _, cmd=command: self.send_command(cmd))
 
@@ -170,9 +172,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         )
         self.plot_data[key]["curve"] = plot_line
 
+
     def send_cmd_text(self):
         command = self.CMDtextEdit.text()
-        if command.strip():
+        if command.strip():  # Check if command is not empty
             self.CMDtextEdit.clear()
             self.send_command(command)
 
@@ -388,6 +391,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 anchor_dict["y"] = anchor_dict["y"][-value:]
             anchor_dict["curve"].setData(anchor_dict["x"], anchor_dict["y"])
 
+    def send_command(self, command):
+        if self.serial and self.serial.is_open:
+            try:
+                # Send the command over serial
+                self.serial.write((command + '\n').encode())
+                # Optionally, display the sent command in the terminal
+                self.terminal.append_text(f"> {command}\n")
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(
+                    self, "Error", f"Failed to send command: {str(e)}")
+        else:
+            QtWidgets.QMessageBox.warning(self, "Warning", "Serial port is not open.")
     def closeEvent(self, event):
         self.stop_serial()
         if self.log_file:
