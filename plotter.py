@@ -463,8 +463,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def update_location_region(self, x, y):
         # Car dimensions: width=2, height=1.5, center at (0,0)
         # Boundaries
-        half_width = 1.0
-        half_height = 0.75
+        half_width = 0.5
+        half_height = 0.25
         region = None
         # Check inside
         if -half_width <= x <= half_width and -half_height <= y <= half_height:
