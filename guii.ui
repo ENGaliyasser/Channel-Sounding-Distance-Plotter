@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+<class>MainWindow</class>
+<widget class="QFrame" name="carRegionWidget">
+ <property name="minimumSize">
+  <size>
+   <width>200</width>
+   <height>200</height>
+  </size>
+ </property>
+ <property name="frameShape">
+  <enum>QFrame::StyledPanel</enum>
+ </property>
+ <layout class="QGridLayout" name="gridLayout">
+  <item row="0" column="1">
+   <widget class="QLabel" name="regionFront">
+    <property name="text">
+     <string>Front</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="styleSheet">
+     <string>background-color: #e53935; color: white; border-radius: 8px;</string>
+    </property>
+   </widget>
+  </item>
+  <item row="1" column="0">
+   <widget class="QLabel" name="regionLeft">
+    <property name="text">
+     <string>Left</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="styleSheet">
+     <string>background-color: #e53935; color: white; border-radius: 8px;</string>
+    </property>
+   </widget>
+  </item>
+  <item row="1" column="1">
+   <widget class="QLabel" name="regionInside">
+    <property name="text">
+     <string>Inside</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="styleSheet">
+     <string>background-color: #d32f2f; color: white; border-radius: 8px; font-weight: bold;</string>
+    </property>
+   </widget>
+  </item>
+  <item row="1" column="2">
+   <widget class="QLabel" name="regionRight">
+    <property name="text">
+     <string>Right</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="styleSheet">
+     <string>background-color: #e53935; color: white; border-radius: 8px;</string>
+    </property>
+   </widget>
+  </item>
+  <item row="2" column="1">
+   <widget class="QLabel" name="regionBehind">
+    <property name="text">
+     <string>Behind</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="styleSheet">
+     <string>background-color: #e53935; color: white; border-radius: 8px;</string>
+    </property>
+   </widget>
+  </item>
+ </layout>
+</widget>
+</ui>
