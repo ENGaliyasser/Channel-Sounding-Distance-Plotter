@@ -1,4 +1,3 @@
-
 import sys
 import os
 import datetime
@@ -11,7 +10,7 @@ import re
 from pyqtgraph.exporters import ImageExporter
 
 from gui import Ui_MainWindow  # Replace with your UI class if necessary
-
+from terminal_text_edit import TerminalTextEdit
 
 # Serial Reader Thread
 class SerialReaderThread(QThread):
@@ -40,21 +39,7 @@ class SerialReaderThread(QThread):
         self.running = False
 
 
-class TerminalTextEdit(QtWidgets.QTextEdit):
-    def __init__(self, parent=None):
-        super(TerminalTextEdit, self).__init__(parent)
-        self.setReadOnly(True)
-        self.setAcceptRichText(False)
-        self.setUndoRedoEnabled(False)
-        self.moveCursor(QtGui.QTextCursor.End)
 
-    def append_text(self, text):
-        self.moveCursor(QtGui.QTextCursor.End)
-        self.insertPlainText(text)
-        self.moveCursor(QtGui.QTextCursor.End)
-
-    def write_data(self, data):
-        self.append_text(data)
 
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -77,19 +62,32 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.plotWidget.showGrid(x=True, y=True)
         self.plotWidget.setLabel('left', 'Distance (m)')
         self.plotWidget.setLabel('bottom', 'Measurement count')
-        self.plotWidget.addLegend()
+        legend = self.plotWidget.addLegend()
+        if legend is not None:
+            for _, label in legend.items:
+                label.setStyleSheet("color: #222222; font-size: 12pt; font-weight: bold;")
 
         # Dictionary to store data by (anchor_id, type_str)
         self.plot_data = {}
 
         # Anchor colors keyed by anchor_id
         self.anchor_colors = {
-            1: 'r',
-            2: 'g',
-            3: 'b',
-            4: 'm',
-            5: 'y',
-            6: 'k'
+            1: 'r',    # Red
+            2: 'g',    # Green
+            3: 'b',    # Blue
+            4: 'm',    # Magenta
+            5: 'y',    # Yellow
+            6: 'k',    # Black
+            7: 'c',    # Cyan
+            8: 'orange',
+            9: 'purple',
+            10: 'brown',
+            11: 'pink',
+            12: 'lime',
+            13: 'navy',
+            14: 'teal',
+            15: 'olive',
+            16: 'maroon',
         }
 
         # Setup Baud rate combo box
@@ -147,11 +145,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Use application icon for notifications (or set your own)
         self.tray_icon.setIcon(self.windowIcon())
 
-    def init_anchor_data(self, anchor_id, type_str):
+    def init_anchor_data(self, anchor_id, device_id, type_str):
         """
-        Initialize plot data structures for a new (anchor_id, type_str).
+        Initialize plot data structures for a new (anchor_id, device_id, type_str).
         """
-        key = (anchor_id, type_str)
+        key = (anchor_id, device_id, type_str)
         self.plot_data[key] = {
             "x": [],
             "y": [],
@@ -159,9 +157,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             "curve": None
         }
 
-        # Pick color for this anchor (default black)
-        color = self.anchor_colors.get(anchor_id, 'k')
-        legend_name = f"Anchor_{anchor_id}_{type_str}"
+        # Pick color for this anchor (default black), offset for device
+        base_colors = list(self.anchor_colors.values())
+        color_idx = (anchor_id - 1) % len(base_colors)
+        color = base_colors[color_idx]
+        # Slightly change color for each device (if needed, can use more advanced coloring)
+        if device_id > 1:
+            color = pg.intColor((color_idx * 5 + device_id) % 16)
+        legend_name = f"Anchor_{anchor_id}_Device_{device_id}_{type_str}"
 
         plot_line = self.plotWidget.plot(
             pen=color,
@@ -196,42 +199,68 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if not line:
                 continue  # skip empty lines
 
+            # Parse location : (x,y) and update region GUI
+            loc_match = re.search(r"location\s*:\s*\((-?\d*\.?\d+),\s*(-?\d*\.?\d+)\)", line, re.IGNORECASE)
+            if loc_match:
+                x = float(loc_match.group(1))
+                y = float(loc_match.group(2))
+                self.update_location_region(x, y)
+                continue
+
             # Check OEM command lines
             if "Received OEM App Command:" in line:
                 self.show_oem_notification(line)
 
-            # Attempt to parse anchor lines
-            match = re.search(r"Anchor\s+(\d+)\s+Distance\s+(\S+):\s+([\d\.]+)", line)
+            # Try to match with device id: Anchor 1 Device 2 Distance RAW: 3.45
+            match = re.search(r"Anchor\s+(\d+)\s+Device\s+(\d+)\s+Distance\s+(\S+):\s+([\d\.]+)", line)
             if match:
                 anchor_id = int(match.group(1))
-                type_str = match.group(2)
-                distance_value = float(match.group(3))
-
-                # Make sure we have a plot for this anchor/type
-                key = (anchor_id, type_str)
+                device_id = int(match.group(2))
+                type_str = match.group(3)
+                distance_value = float(match.group(4))
+                key = (anchor_id, device_id, type_str)
                 if key not in self.plot_data:
-                    self.init_anchor_data(anchor_id, type_str)
-
-                # Append data
+                    self.init_anchor_data(anchor_id, device_id, type_str)
                 self.plot_data[key]["count"] += 1
                 count_val = self.plot_data[key]["count"]
                 self.plot_data[key]["x"].append(count_val)
                 self.plot_data[key]["y"].append(distance_value)
-
-                # Trim based on slider
                 window_size = self.windowSizeSlider.value()
                 if len(self.plot_data[key]["x"]) > window_size:
                     self.plot_data[key]["x"] = self.plot_data[key]["x"][-window_size:]
                     self.plot_data[key]["y"] = self.plot_data[key]["y"][-window_size:]
-
-                # Update plot
                 curve = self.plot_data[key]["curve"]
                 curve.setData(self.plot_data[key]["x"], self.plot_data[key]["y"])
-
-                # If logging is active, write to log
                 if self.is_logging and self.log_file:
                     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-                    log_line = f"{timestamp},Anchor {anchor_id} {type_str},{distance_value}\n"
+                    log_line = f"{timestamp},Anchor {anchor_id} Device {device_id} {type_str},{distance_value}\n"
+                    with QMutexLocker(self.log_mutex):
+                        self.log_file.write(log_line)
+                        self.log_file.flush()
+                continue
+            # Fallback: old format (no device id)
+            match = re.search(r"Anchor\s+(\d+)\s+Distance\s+(\S+):\s+([\d\.]+)", line)
+            if match:
+                anchor_id = int(match.group(1))
+                device_id = 1  # Default device id if not present
+                type_str = match.group(2)
+                distance_value = float(match.group(3))
+                key = (anchor_id, device_id, type_str)
+                if key not in self.plot_data:
+                    self.init_anchor_data(anchor_id, device_id, type_str)
+                self.plot_data[key]["count"] += 1
+                count_val = self.plot_data[key]["count"]
+                self.plot_data[key]["x"].append(count_val)
+                self.plot_data[key]["y"].append(distance_value)
+                window_size = self.windowSizeSlider.value()
+                if len(self.plot_data[key]["x"]) > window_size:
+                    self.plot_data[key]["x"] = self.plot_data[key]["x"][-window_size:]
+                    self.plot_data[key]["y"] = self.plot_data[key]["y"][-window_size:]
+                curve = self.plot_data[key]["curve"]
+                curve.setData(self.plot_data[key]["x"], self.plot_data[key]["y"])
+                if self.is_logging and self.log_file:
+                    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+                    log_line = f"{timestamp},Anchor {anchor_id} Device {device_id} {type_str},{distance_value}\n"
                     with QMutexLocker(self.log_mutex):
                         self.log_file.write(log_line)
                         self.log_file.flush()
@@ -240,25 +269,42 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def show_oem_notification(self, line):
         """
-        Extract the OEM command from the line and show a system tray notification.
-        Example line: "Received OEM App Command: <cmd>"
+        Show a styled notification in the center of the app for 1 second.
         """
         try:
-            # Split and grab everything after the colon
             tokens = line.split("Received OEM App Command:", 1)
             if len(tokens) > 1:
                 command = tokens[1].strip()
                 if command:
-                    # Ensure tray icon is visible
-                    self.tray_icon.show()
-
-                    # Show a balloon message for 5 seconds
-                    self.tray_icon.showMessage(
-                        "OEM Command",
-                        command,
-                        QtWidgets.QSystemTrayIcon.Information,
-                        2000
-                    )
+                    # Create notification label if not exists
+                    if not hasattr(self, '_oem_notification_label'):
+                        self._oem_notification_label = QtWidgets.QLabel(self)
+                        self._oem_notification_label.setAlignment(QtCore.Qt.AlignCenter)
+                        self._oem_notification_label.setStyleSheet('''
+                            QLabel {
+                                background-color: #222;
+                                color: #fff;
+                                border-radius: 12px;
+                                padding: 24px 48px;
+                                font-size: 20px;
+                                font-weight: bold;
+                                border: 2px solid #4CAF50;
+                                box-shadow: 0px 4px 16px rgba(0,0,0,0.3);
+                            }
+                        ''')
+                        self._oem_notification_label.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.ToolTip)
+                        self._oem_notification_label.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
+                    self._oem_notification_label.setText(command)
+                    # Center the label in the main window
+                    self._oem_notification_label.adjustSize()
+                    w = self._oem_notification_label.width()
+                    h = self._oem_notification_label.height()
+                    x = (self.width() - w) // 2
+                    y = (self.height() - h) // 2
+                    self._oem_notification_label.setGeometry(x, y, w, h)
+                    self._oem_notification_label.show()
+                    # Hide after 1 second
+                    QtCore.QTimer.singleShot(2000, self._oem_notification_label.hide)
         except Exception as e:
             print(f"Error parsing OEM command: {e}")
 
@@ -314,6 +360,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.plot_data.clear()
         self.plotWidget.clear()
         self.plotWidget.addLegend()
+        # Make legend font darker and bold
+        legend = self.plotWidget.legend
+        if legend is not None:
+            for _, label in legend.items:
+                label.setStyleSheet("color: #222222; font-size: 12pt; font-weight: bold;")
 
     def save_plot(self):
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(
@@ -408,6 +459,55 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.log_file:
             self.log_file.close()
         event.accept()
+
+    def update_location_region(self, x, y):
+        # Car dimensions: width=2, height=1.5, center at (0,0)
+        # Boundaries
+        half_width = 1.0
+        half_height = 0.75
+        region = None
+        # Check inside
+        if -half_width <= x <= half_width and -half_height <= y <= half_height:
+            region = 'inside'
+        elif y > half_height:
+            region = 'front'
+        elif y < -half_height:
+            region = 'behind'
+        elif x < -half_width:
+            region = 'left'
+        elif x > half_width:
+            region = 'right'
+        else:
+            region = 'unknown'
+
+        # Set all to red, then set the active one to green
+        default_styles = {
+            'front': "background-color: #e53935; color: white; border-radius: 8px;",
+            'behind': "background-color: #e53935; color: white; border-radius: 8px;",
+            'left': "background-color: #e53935; color: white; border-radius: 8px;",
+            'right': "background-color: #e53935; color: white; border-radius: 8px;",
+            'inside': "background-color: #d32f2f; color: white; border-radius: 8px; font-weight: bold;"
+        }
+        green_style = "background-color: #43a047; color: white; border-radius: 8px; font-weight: bold;"
+        # Reset all
+        self.regionFront.setStyleSheet(default_styles['front'])
+        self.regionBehind.setStyleSheet(default_styles['behind'])
+        self.regionLeft.setStyleSheet(default_styles['left'])
+        self.regionRight.setStyleSheet(default_styles['right'])
+        self.regionInside.setStyleSheet(default_styles['inside'])
+        # Set green for the detected region
+        if region == 'front':
+            self.regionFront.setStyleSheet(green_style)
+        elif region == 'behind':
+            self.regionBehind.setStyleSheet(green_style)
+        elif region == 'left':
+            self.regionLeft.setStyleSheet(green_style)
+        elif region == 'right':
+            self.regionRight.setStyleSheet(green_style)
+        elif region == 'inside':
+            self.regionInside.setStyleSheet(green_style)
+        # Update the Location label
+        self.Location.setText(f"({x:.2f}, {y:.2f})  [{region.capitalize()}]")
 
 
 if __name__ == '__main__':
